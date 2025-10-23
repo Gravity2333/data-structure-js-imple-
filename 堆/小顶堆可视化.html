@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MinHeap Visualization</title>
+    <style>
+        /* ---------- 清新浅色主题 ---------- */
+        html,
+        body {
+            height: 100%;
+            padding: 0px;
+            margin: 0px;
+        }
+
+        #heap-viz {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #f7f9fc 0%, #e9eef6 100%);
+            border: 1px solid #d0d7e2;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            padding: 12px;
+            box-sizing: border-box;
+            color: #333;
+            position: relative;
+            overflow: auto;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto;
+        }
+
+        #heap-viz .controls {
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        #heap-viz button {
+            background: #ffffff;
+            color: #333;
+            border: 1px solid #cfd5df;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+
+        #heap-viz button:hover {
+            background: #f1f5fb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        #heap-svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .node-text {
+            font-size: 12px;
+            fill: #555;
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        .node-val {
+            font-size: 12px;
+            fill: #fff;
+            pointer-events: none;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        #heap-caption {
+            position: absolute;
+            left: 14px;
+            bottom: 10px;
+            font-size: 13px;
+            color: #555;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="heap-viz">
+        <div class="controls">
+            <input type="number" id="val-input" placeholder="数字">
+            <button id="insert-btn">插入</button>
+            <button id="pop-btn">删除最小值</button>
+            <button id="refresh-btn">刷新</button>
+            <button id="zoom-fit-btn">自适应</button>
+            <button id="sort-btn">排序</button>
+        </div>
+        <div id="sort-result" style="position:absolute;left:12px;bottom:36px;color:#111;font-weight:bold;">
+            排序结果: <span id="sort-seq"></span>
+        </div>
+
+        <div style="position:absolute;left:12px;top:12px;color:#111;font-weight:bold;">
+            小顶堆可视化 当前最小值：<span id="min-val">-</span>
+        </div>
+        <svg id="heap-svg" viewBox="0 0 1200 480"></svg>
+        <div id="heap-caption">Min Heap 可视化 — 节点数：<span id="heap-count">0</span></div>
+    </div>
+
+    <script>
+        (function () {
+            const svg = document.getElementById('heap-svg');
+            const countEl = document.getElementById('heap-count');
+            const minValEl = document.getElementById('min-val');
+            const refreshBtn = document.getElementById('refresh-btn');
+            const zoomFitBtn = document.getElementById('zoom-fit-btn');
+            const insertBtn = document.getElementById('insert-btn');
+            const popBtn = document.getElementById('pop-btn');
+            const valInput = document.getElementById('val-input');
+            const sortBtn = document.getElementById('sort-btn');
+            const sortSeqEl = document.getElementById('sort-seq');
+
+            sortBtn.onclick = async () => {
+                const backupHeap = new MinHeap();
+                backupHeap.arr = [null, ...minHeap.arr.slice(1)]; // 备份
+                sortSeqEl.textContent = '';
+                const tempResult = [];
+
+                while (backupHeap.length > 0) {
+                    await delay(500); // 每步延迟
+                    const val = backupHeap.pop();
+                    tempResult.push(val);
+                    sortSeqEl.textContent = tempResult.join(', ');
+
+                    // 可视化当前 heap
+                    minHeap.arr = [null, ...backupHeap.arr.slice(1)]; // 更新 heap 可视化
+                    render();
+                }
+                // 排序完成后恢复原 heap
+                minHeap.arr = [null, ...tempResult];
+                render();
+            };
+
+            function clearSvg() {
+                while (svg.firstChild) svg.removeChild(svg.firstChild);
+            }
+
+            function createDefs() {
+                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                const grad = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+                grad.setAttribute('id', 'node-grad');
+                grad.setAttribute('x1', '0%');
+                grad.setAttribute('y1', '0%');
+                grad.setAttribute('x2', '0%');
+                grad.setAttribute('y2', '100%');
+
+                const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+                stop1.setAttribute('offset', '0%');
+                stop1.setAttribute('stop-color', '#60a5fa');
+
+                const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+                stop2.setAttribute('offset', '100%');
+                stop2.setAttribute('stop-color', '#2563eb');
+
+                grad.appendChild(stop1);
+                grad.appendChild(stop2);
+                defs.appendChild(grad);
+                svg.appendChild(defs);
+            }
+
+            function render() {
+                if (!window.minHeap || !Array.isArray(minHeap.arr)) return;
+                const arr = minHeap.arr.slice();
+                const n = arr.length - 1;
+                countEl.textContent = n;
+                minValEl.textContent = n > 0 ? arr[1] : '-';
+
+                clearSvg();
+                createDefs();
+
+                const width = 1200, height = 480;
+                const topMargin = 36, levelHeight = 80, nodeRadius = 24;
+                const positions = {};
+
+                for (let i = 1; i <= n; i++) {
+                    const depth = Math.floor(Math.log2(i));
+                    const firstAtLevel = Math.pow(2, depth);
+                    const indexInLevel = i - firstAtLevel;
+                    const nodesInLevel = Math.pow(2, depth);
+                    const x = 60 + (indexInLevel + 1) * ((width - 120) / (nodesInLevel + 1));
+                    const y = topMargin + depth * levelHeight;
+                    positions[i] = { x, y };
+                }
+
+                // 绘制边
+                for (let i = 1; i <= n; i++) {
+                    const left = i * 2, right = i * 2 + 1;
+                    [left, right].forEach(child => {
+                        if (child <= n) {
+                            const p = positions[i], c = positions[child];
+                            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                            line.setAttribute('x1', p.x);
+                            line.setAttribute('y1', p.y);
+                            line.setAttribute('x2', c.x);
+                            line.setAttribute('y2', c.y);
+                            line.setAttribute('stroke', '#cbd5e1');
+                            line.setAttribute('stroke-width', '2');
+                            svg.appendChild(line);
+                        }
+                    });
+                }
+
+                // 绘制节点
+                for (let i = 1; i <= n; i++) {
+                    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                    const pos = positions[i];
+                    g.setAttribute('transform', `translate(${pos.x},${pos.y})`);
+
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('r', nodeRadius);
+                    circle.setAttribute('fill', 'url(#node-grad)');
+                    circle.setAttribute('stroke', '#93c5fd');
+                    circle.setAttribute('stroke-width', '1');
+                    g.appendChild(circle);
+
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('class', 'node-val');
+                    text.textContent = arr[i];
+                    g.appendChild(text);
+
+                    svg.appendChild(g);
+                }
+            }
+
+            // 按钮事件
+            refreshBtn.onclick = render;
+            zoomFitBtn.onclick = () => svg.setAttribute('viewBox', '0 0 1200 480');
+            insertBtn.onclick = () => {
+                const val = parseInt(valInput.value);
+                if (!isNaN(val)) {
+                    minHeap.insert(val);
+                    valInput.value = '';
+                    render();
+                }
+            };
+            popBtn.onclick = () => {
+                minHeap.pop();
+                render();
+            };
+
+            // 初次渲染 + 轮询
+            setTimeout(render, 100);
+            setInterval(render, 1000);
+
+        })();
+    </script>
+
+
+    <script>
+        /*  MinHeap  CORE */
+        function MinHeap() { this.arr = [null] }
+        Object.defineProperty(MinHeap.prototype, 'length', {
+            get() { return this.arr.length - 1 }
+        });
+        MinHeap.prototype.insert = function (val) {
+            if (this.arr.length === 1) { return this.arr[1] = val }
+            this.arr.push(val)
+            const len = this.arr.length - 1
+            let parent = Math.trunc(len / 2)
+            while (parent > 0) {
+                this._adjust(parent)
+                parent = Math.trunc(parent / 2)
+            }
+        }
+        MinHeap.prototype._swap = function (i, j) {
+            const tmp = this.arr[i]
+            this.arr[i] = this.arr[j]
+            this.arr[j] = tmp
+        }
+        MinHeap.prototype._adjust = function (index, end = this.arr.length) {
+            let adjustIndex = index
+            while (adjustIndex < end) {
+                const left = adjustIndex * 2
+                const right = adjustIndex * 2 + 1
+                let min = left
+                if (left < end && right < end && this.arr[right] < this.arr[left]) {
+                    min = right
+                }
+                if (left < end && this.arr[adjustIndex] > this.arr[min]) {
+                    this._swap(min, adjustIndex)
+                    adjustIndex = min
+                } else break
+            }
+        }
+        MinHeap.prototype.getMaxValue = function () {
+            if (this.length === 0) return null
+            return this.arr[1]
+        }
+        MinHeap.prototype.pop = function () {
+            if (this.length === 0) return
+            // swap 第一个和最后一个
+            this._swap(1, this.arr.length - 1)
+            // 向下调整
+            this._adjust(1, this.arr.length - 1)
+            return this.arr.pop()
+        }
+
+        MinHeap.prototype.sort = function () {
+            const result = []
+            while (this.length > 0) {
+                if (delay)
+                    result.push(this.pop())
+            }
+            return result
+        }
+
+
+        MinHeap.prototype.sortDelay = async function (time = 1000) {
+            const result = []
+            while (this.length > 0) {
+                await delay(time)
+                result.shift(this.pop())
+            }
+            return result
+        }
+
+        async function delay(time) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve()
+                }, time);
+            })
+        }
+        var minHeap = new MinHeap()
+        minHeap.insert(1)
+        minHeap.insert(3)
+        minHeap.insert(4)
+        minHeap.insert(2)
+        minHeap.insert(5)
+        minHeap.insert(8)
+        minHeap.insert(51)
+    </script>
+
+</body>
+
+</html>
