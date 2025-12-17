@@ -329,7 +329,7 @@
 
         // 计算曼哈顿距离
         function countPredictDist(from, to) {
-            return Math.abs(from[0] - to[0]) + Math.abs(from[1] - to[1]);
+            return Math.pow(from[0] - to[0],2) + Math.pow(from[1] - to[1],2);
         }
 
         // 是否有效
