@@ -18,3 +18,24 @@ var sortedSquares = function (nums) {
   }
   return results;
 };
+
+/**
+ * @param {number[]} nums
+ * @return {number[]}
+ */
+var sortedSquares = function (nums) {
+  if (nums.length === 0) return nums;
+  const results = [];
+  let left = 0;
+  let right = nums.length - 1;
+
+  while (left <= right) {
+    if (Math.pow(nums[left], 2) > Math.pow(nums[right], 2)) {
+      results.unshift(Math.pow(nums[left++], 2));
+    } else {
+      results.unshift(Math.pow(nums[right--], 2));
+    }
+  }
+
+  return results
+};

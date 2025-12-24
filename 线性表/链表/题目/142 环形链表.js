@@ -42,3 +42,26 @@ var detectCycle = function (head) {
 
   return slowPtr;
 };
+
+var detectCycle = function (head) {
+  let slow = head;
+  let fast = head;
+  while (1) {
+    slow = slow?.next;
+    fast = fast?.next?.next;
+
+    if (!fast) return null;
+    if (slow === fast) {
+      break;
+    }
+  }
+
+  fast = head;
+  while (1) {
+    if (fast === slow) {
+      return slow;
+    }
+    fast = fast?.next;
+    slow = slow?.next;
+  }
+};

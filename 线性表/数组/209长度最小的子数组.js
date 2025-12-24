@@ -36,7 +36,7 @@ var minSubArrayLen = function (target, nums) {
   let minLen = Infinity;
   /** 每个循环都尝试进行一次收缩，收缩到不能收缩为止
    *  收缩之后，扩展右侧边界
-  */
+   */
   while (right < nums.length) {
     sum += nums[right];
     while (left <= right && sum >= target) {
@@ -46,6 +46,42 @@ var minSubArrayLen = function (target, nums) {
     }
     // 扩展右边界
     right++;
+  }
+
+  return minLen === Infinity ? 0 : minLen;
+};
+
+/**
+ * @param {number} target
+ * @param {number[]} nums
+ * @return {number}
+ */
+var minSubArrayLen = function (target, nums) {
+  if (nums.length === 0) return 0;
+  let minLen = Infinity;
+  /** 左右闭区间 [ left , right ] */
+  let left = 0;
+  let right = 0;
+  let sum = nums[0];
+
+  //while 只负责右移right
+  while (right < nums.length) {
+    // 扩大窗口
+    while (right < nums.length && sum < target) {
+      right++;
+      sum += nums[right];
+    }
+
+    // 缩小窗口
+    while (left <= right && right < nums.length && sum >= target) {
+      minLen = Math.min(minLen, right - left + 1);
+      sum -= nums[left];
+      left++;
+    }
+
+    // 再次扩大窗口
+    right++;
+    sum += nums[right]
   }
 
   return minLen === Infinity ? 0 : minLen;
