@@ -68,7 +68,6 @@ var removeElements = function (head, val) {
   return vritualHead.next;
 };
 
-
 /** 虚拟头节点Prev的方式 */
 /**
  * @param {ListNode} head
@@ -80,19 +79,42 @@ var removeElements = function (head, val) {
     val: "virtual Head",
     next: head,
   };
- 
+
   let current = vritualHead.next;
-  let prev = vritualHead
+  let prev = vritualHead;
   while (current !== null) {
     if (current.val === val) {
-      current =  current.next;
-      prev.next = current
-    }else{
-        prev = current
-        current = current.next
+      current = current.next;
+      prev.next = current;
+    } else {
+      prev = current;
+      current = current.next;
     }
-  
   }
 
   return vritualHead.next;
+};
+
+var removeElements2 = function (head, val) {
+  const vNode = {
+    val: "v",
+    next: head,
+  };
+
+  let prev = vNode;
+  let ptr = vNode.next;
+
+  while (ptr !== null) {
+    if (ptr.val === val) {
+      // del
+      prev.next = ptr.next;
+      ptr = ptr.next;
+    } else {
+      // no del
+      prev = ptr;
+      ptr = ptr.next;
+    }
+  }
+
+  return vNode.next
 };

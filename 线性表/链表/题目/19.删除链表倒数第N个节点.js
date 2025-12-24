@@ -27,7 +27,7 @@ var removeNthFromEnd = function (head, n) {
   /** 移动快速指针 */
   while (initSteps < n) {
     fastPtr = fastPtr.next;
-    initSteps++
+    initSteps++;
     if (fastPtr === null) {
       return head.next;
     }
@@ -45,4 +45,40 @@ var removeNthFromEnd = function (head, n) {
   slowPrev.next = slowPtr.next;
 
   return virtualHead.next;
+};
+
+// 复习 第二次写
+/**
+ * Definition for singly-linked list.
+ * function ListNode(val, next) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.next = (next===undefined ? null : next)
+ * }
+ */
+/**
+ * @param {ListNode} head
+ * @param {number} n
+ * @return {ListNode}
+ */
+var removeNthFromEnd = function (head, n) {
+  const virtualHead = {
+    val: "v",
+    next: head,
+  };
+  let slowPrev = virtualHead;
+  let slowPtr = virtualHead;
+  let fastPtr = virtualHead;
+
+  for (let i = 0; i < n; i++) {
+    fastPtr = fastPtr.next;
+  }
+
+  while (fastPtr !== null) {
+    fastPtr = fastPtr.next;
+    slowPrev = slowPtr;
+    slowPtr = slowPtr.next;
+  }
+
+  slowPrev.next = slowPtr.next
+  return virtualHead.next
 };

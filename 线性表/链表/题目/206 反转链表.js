@@ -6,7 +6,7 @@
  * }
  */
 
- /** 递归方法 */
+/** 递归方法 */
 /**
  * @param {ListNode} head
  * @return {ListNode}
@@ -20,45 +20,59 @@ var reverseList = function (head) {
   const newHead = reverseList(nextNode);
 
   nextNode.next = head;
-  head.next = null
+  head.next = null;
 
-  return newHead
+  return newHead;
 };
-
 
 /** stack 方法 */
 var reverseList = function (head) {
-  const stack = []
-  let current = head
-  while(current !== null){
-    stack.push(current)
-    current = current.next
-  }
-  
-  current = stack.pop()
-  const newHead = current
-  while(stack.length>0){
-    const prev = stack.pop()
-    current.next = prev
-    prev.next = null
-    current = prev
+  const stack = [];
+  let current = head;
+  while (current !== null) {
+    stack.push(current);
+    current = current.next;
   }
 
-  return newHead || null
+  current = stack.pop();
+  const newHead = current;
+  while (stack.length > 0) {
+    const prev = stack.pop();
+    current.next = prev;
+    prev.next = null;
+    current = prev;
+  }
+
+  return newHead || null;
 };
 
 /** 双指针 方法 */
 var reverseList = function (head) {
-  if(!head) return null
-  let prev = head
-  let current = head.next
+  if (!head) return null;
+  let prev = head;
+  let current = head.next;
 
-  while(current !==null){
-    const tmp = current.next
-    current.next = prev
-     prev = current
-    current = tmp
+  while (current !== null) {
+    const tmp = current.next;
+    current.next = prev;
+    prev = current;
+    current = tmp;
   }
-  head.next = null
-    return prev
+  head.next = null;
+  return prev;
+};
+
+var reverseList = function (head) {
+  if(!head) return head
+  let slow = head;
+  let fast = head.next;
+  slow.next = null;
+  let tmp;
+  while (fast !== null) {
+    tmp = fast.next;
+    fast.next = slow;
+    slow = fast;
+    fast = tmp;
+  }
+  return slow;
 };
