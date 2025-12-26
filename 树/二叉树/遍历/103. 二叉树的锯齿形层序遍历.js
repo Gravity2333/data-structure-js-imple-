@@ -49,25 +49,70 @@ var zigzagLevelOrder = function (root) {
   return result;
 };
 
-
 const tree = {
   val: 3,
   left: {
     val: 9,
     left: null,
-    right: null
+    right: null,
   },
   right: {
     val: 20,
     left: {
       val: 15,
       left: null,
-      right: null
+      right: null,
     },
     right: {
       val: 7,
       left: null,
-      right: null
+      right: null,
+    },
+  },
+};
+
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number[][]}
+ */
+var zigzagLevelOrder = function (root) {
+  if(!root) return []
+  const queue = [root];
+  const results = [];
+  let layerNum = 1;
+  let shouldReverse = false;
+  while (queue.length > 0) {
+    const currentResult = [];
+    let currentChildNum = 0;
+    for (let i = 0; i < layerNum; i++) {
+      const top = queue.shift();
+      if (shouldReverse) {
+        currentResult.unshift(top.val);
+      } else {
+        currentResult.push(top.val);
+      }
+      if (top.left) {
+        currentChildNum++;
+        queue.push(top.left);
+      }
+
+      if (top.right) {
+        currentChildNum++;
+        queue.push(top.right);
+      }
     }
+
+    layerNum = currentChildNum;
+    results.push(currentResult);
+    shouldReverse = !shouldReverse;
   }
+  return results;
 };
