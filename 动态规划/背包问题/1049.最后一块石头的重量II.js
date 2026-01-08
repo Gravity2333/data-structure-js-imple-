@@ -30,3 +30,31 @@ var lastStoneWeightII = function (stones) {
 
   return Math.abs(dp[target] - (sum - dp[target]));
 };
+
+/** 01背包 最大价值问题
+ * 要想石头最小 必须让两组尽可能相等
+ * 也就是 尽可能接近 1/2 * 总重量
+ */
+/**
+ * @param {number[]} stones
+ * @return {number}
+ */
+var lastStoneWeightII = function (stones) {
+  const sum = stones.reduce((prev, curr) => prev + curr, 0);
+  const target = Math.trunc(sum / 2);
+
+  const dp = new Array(target + 1).fill(0);
+
+  for (let i = 0; i < stones.length; i++) {
+    for (let j = target; j >= 0; j--) {
+      if (stones[i] > j) {
+        dp[j] = dp[j];
+      } else {
+        dp[j] = Math.max(dp[j], dp[j - stones[i]] + stones[i]);
+      }
+    }
+  }
+
+  const groupMax = dp.pop()
+  return Math.abs(sum - groupMax) - groupMax;
+};

@@ -37,7 +37,9 @@
  * @return {number}
  */
 var findMaxForm = function (strs, m, n) {
-  const dp = Array.from({ length: m + 1 }, () => Array.from({ length: n + 1 },()=>0));
+  const dp = Array.from({ length: m + 1 }, () =>
+    Array.from({ length: n + 1 }, () => 0)
+  );
 
   for (let k = 0; k < strs.length; k++) {
     /** 统计str中 0 1 数量 纪录为 x y */
@@ -65,4 +67,55 @@ var findMaxForm = function (strs, m, n) {
   }
 
   return dp[m][n];
+};
+
+/** 三维dp数组
+ *  要求满足2个维度 m n !
+ *  这个题是 固定背包容量，能装下的最多物品数
+ * 对于 对于前 k 个物品 背包对于 0的容量为 i 对于1的容量为j 可装下最大物品数为: dp[k][i][j]
+ * dp[k][i][j] = max(不选 k dp[k-1][i][j] , 选k 1 + dp[k-1][i-strs[k].0][j-strs[k].1])
+ * 初始化 多加一层 表示选0个物品时的状态 都是0
+ * k i j
+ */
+/**
+ * @param {string[]} strs
+ * @param {number} m
+ * @param {number} n
+ * @return {number}
+ */
+var findMaxForm = function (strs, m, n) {
+  /** 统计 01 数量 */
+  const strsCnt = strs.map((str) => {
+    const result = [0, 0];
+    for (const c of str) {
+      if (c === "0") {
+        result[0]++;
+      }
+
+      if (c === "1") {
+        result[1]++;
+      }
+    }
+    return result;
+  });
+  strsCnt.unshift([0, 0]);
+  const dp = Array.from({ length: strsCnt.length }, () =>
+    Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0))
+  );
+
+  for (let k = 1; k < strsCnt.length; k++) {
+    for (let i = 0; i <= m; i++) {
+      for (let j = 0; j <= n; j++) {
+        if (strsCnt[k][0] > i || strsCnt[k][1] > j) {
+          dp[k][i][j] = dp[k - 1][i][j];
+        } else {
+          dp[k][i][j] =Math.max(
+            dp[k - 1][i][j] ,
+            1 +
+            dp[k - 1][i - strsCnt[k][0]][j - strsCnt[k][1]])
+        }
+      }
+    }
+  }
+  return dp.pop().pop().pop()
 };

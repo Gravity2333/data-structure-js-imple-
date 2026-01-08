@@ -66,3 +66,43 @@ var findTargetSumWays = function (nums, target) {
 
   return dp[nums.length][packageCapacaity];
 };
+
+/**
+ *  正Sum: left
+ *  负Sum: right
+ *
+ *
+ * left + right = sum
+ * left - right = target
+ * left = (sum + tagrt) / 2
+ *
+ * 种类问题 直接累加
+ * 对于 j 的容量 有 dp[j] 种放法
+ * dp[j] = dp[j] + dp[j-nums[i]]
+ * 初始化 dp[0] = 1
+ */
+
+/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number}
+ */
+var findTargetSumWays = function (nums, target) {
+  const sum = nums.reduce((prev, curr) => prev + curr, 0);
+  if (target + sum < 0 || (target + sum) % 2 !== 0) return 0;
+  target = (target + sum) / 2;
+
+  const dp = new Array(target + 1).fill(0);
+  dp[0] = 1;
+  for (let i = 0; i < nums.length; i++) {
+    for (let j = target; j >= 0; j--) {
+      if (nums[i] > j) {
+        dp[j] = dp[j];
+      } else {
+        dp[j] = dp[j] + dp[j - nums[i]];
+      }
+    }
+  }
+
+  return dp.pop();
+};

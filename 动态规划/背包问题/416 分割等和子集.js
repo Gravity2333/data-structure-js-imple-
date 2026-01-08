@@ -106,3 +106,30 @@ var canPartition = function (nums) {
 
   return dp[half] === half;
 };
+
+
+/** 关键点！ 当重量 和 价值一样的时候 对于每个 j 其最大价值 为 j  */
+/**
+ * @param {number[]} nums
+ * @return {boolean}
+ */
+var canPartition = function(nums) {
+    const sum = nums.reduce((prev,curr) => prev+ curr,0)
+    if(sum % 2 !== 0) return false
+    const target = sum / 2
+
+    nums.unshift(0)
+    const dp = Array.from({ length: nums.length},()=>new Array(target + 1).fill(0))
+
+    for(let i=1;i<nums.length;i++){
+      for(let j=0;j<=target;j++){
+        if(nums[i] > j){
+          dp[i][j] = dp[i-1][j] 
+        }else{
+           dp[i][j] = Math.max(dp[i-1][j], dp[i-1][j-nums[i]]+ nums[i])
+        }
+      }
+    }
+
+    return dp.pop().pop() === target
+};

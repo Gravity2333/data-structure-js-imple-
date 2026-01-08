@@ -93,16 +93,16 @@ var combinationSum4 = function (nums, target) {
 
 /** 排列
  *  如何获取排列数
- * 
- * 为什么传统01背包的递推公式解决的是 组合 数 
+ *
+ * 为什么传统01背包的递推公式解决的是 组合 数
  * 比如 dp[i][j] = dp[i-1][j] + dp[i][j-nums[i]]
  * 什么意思? 我们只能在 前面i个数的数量下，扩展dp[i][j] 那顺序就一定是按照物品本身的顺序来的
- * 
+ *
  * 如何排列?
  * 我们只需要在扩展的时候 不限制于必须在 前i个元素的基础上扩展，我们可以
  * dp[i][j] = dp[i-1][j] + dp[nums.length][j-nums[i]]
  * 也就是 每次都是在weight = j-nums[i] 且 所有元素可选的情况下 扩展
- * 
+ *
  * 这种情况下 我们就必须 先遍历重量，把每个重量的 所有 0-i物品数都算晚，才能继续扩展
  */
 var combinationSum4 = function (nums, target) {
@@ -125,26 +125,68 @@ var combinationSum4 = function (nums, target) {
   return dp[nums.length][target];
 };
 
-
 /** 一维 也是自己完成积累了 */
 /**
  * @param {number[]} nums
  * @param {number} target
  * @return {number}
  */
-var combinationSum4 = function(nums, target) {
-    const dp = new Array(target+1).fill(0)
-    dp[0] = 1
-
-    for(let j = 0;j<=target;j++){
-        for(let i =0;i<nums.length;i++){
-            if(j < nums[i]){
-                dp[j] = dp[j]
-            }else{
-                dp[j] = dp[j] + dp[j-nums[i]]
-            }
-        }
+var combinationSum4 = function (nums, target) {
+  const dp = new Array(target + 1).fill(0);
+  dp[0] = 1;
+  for (let j = 0; j <= target; j++) {
+    for (let i = 0; i < nums.length; i++) {
+      if (j < nums[i]) {
+        dp[j] = dp[j];
+      } else {
+        dp[j] = dp[j] + dp[j - nums[i]];
+      }
     }
+  }
 
-    return dp[target]
+  return dp[target];
+};
+
+/** 组合总和 123 用有 k 个限制 适合回溯 不适合 dp 这个没用k限制 回溯会超时 适合背包dp
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number}
+ */
+var combinationSum4 = function (nums, target) {
+  const dp = new Array(target + 1).fill(0);
+  dp[0] = 1;
+  for (let j = 0; j <= target; j++) {
+    for (let i = 0; i < nums.length; i++) {
+      if (nums[i] > j) {
+        dp[j] = dp[j];
+      } else {
+        dp[j] = dp[j] + dp[j - nums[i]];
+      }
+    }
+  }
+
+  return dp.pop();
+};
+
+/** 组合总和 123 用有 k 个限制 适合回溯 不适合 dp 这个没用k限制 回溯会超时 适合背包dp
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number}
+ */
+var combinationSum4 = function (nums, target) {
+  const dp = Array.from({ length: nums.length + 1 }, () =>
+    new Array(target + 1).fill(0)
+  );
+  dp[0][0] = 1;
+  for (let j = 0; j <= target; j++) {
+    for (let i = 1; i <= nums.length; i++) {
+      if (nums[i-1] > j) {
+        dp[i][j] = dp[i-1][j];
+      } else {
+        dp[i][j] = dp[i-1][j] + dp[nums.length][j - nums[i-1]];
+      }
+    }
+  }
+
+  return dp.pop().pop();
 };
