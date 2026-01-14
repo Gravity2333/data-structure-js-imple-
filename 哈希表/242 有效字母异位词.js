@@ -9,18 +9,49 @@
  * @param {string} t
  * @return {boolean}
  */
-var isAnagram = function(s, t) {
-    if(s.length !== t.length) return false
-    const smap = new Array(26).fill(0)
-    const tmap = new Array(26).fill(0)
-    const startCharAscii = 'a'.charCodeAt()
-    for(let i=0;i<s.length;i++){
-        const c1 = s[i].charCodeAt()
-        const c2 = t[i].charCodeAt()
+var isAnagram = function (s, t) {
+  if (s.length !== t.length) return false;
+  const smap = new Array(26).fill(0);
+  const tmap = new Array(26).fill(0);
+  const startCharAscii = "a".charCodeAt();
+  for (let i = 0; i < s.length; i++) {
+    const c1 = s[i].charCodeAt();
+    const c2 = t[i].charCodeAt();
 
-        smap[c1-startCharAscii]++
-        tmap[c2-startCharAscii]++
+    smap[c1 - startCharAscii]++;
+    tmap[c2 - startCharAscii]++;
+  }
+
+  return smap.join("") === tmap.join("");
+};
+
+/**
+ * @param {string} s
+ * @param {string} t
+ * @return {boolean}
+ */
+var isAnagram = function (s, t) {
+  const map = new Map();
+  for (const c of s) {
+    if (map.has(c)) {
+      map.set(c, map.get(c) + 1);
+    } else {
+      map.set(c, 1);
     }
+  }
 
-    return smap.join('') === tmap.join('')
+  for (const c of t) {
+    if (map.has(c)) {
+      const current = map.get(c) - 1;
+      if (current === 0) {
+        map.delete(c);
+      } else {
+        map.set(c, current);
+      }
+    } else {
+      return false;
+    }
+  }
+
+  return map.size === 0
 };

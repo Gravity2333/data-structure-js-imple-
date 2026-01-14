@@ -35,3 +35,46 @@ var twoSum = function (nums, target) {
 
   return -1;
 };
+
+/** 方法1
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number[]}
+ */
+var twoSum = function (nums, target) {
+  const map = new Map();
+  for (let i = 0; i < nums.length; i++) {
+    const num = nums[i];
+    const rest = target - num;
+    if (map.has(rest)) {
+      return [map.get(rest), i];
+    } else {
+      map.set(num, i);
+    }
+  }
+  return -1;
+};
+
+/** 方法2 双指着
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number[]}
+ */
+var twoSum = function (nums, target) {
+  if (nums.length === 0) return -1;
+  nums = nums.toSorted((a,b) => a-b);
+  let left = 0;
+  let right = nums.length - 1;
+
+  while (left < right) {
+    const sum = nums[left] + nums[right];
+    if (sum === target) {
+      return [left, right];
+    } else if (sum > target) {
+      right--;
+    } else {
+      left++;
+    }
+  }
+  return -1;
+};

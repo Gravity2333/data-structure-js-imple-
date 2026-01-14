@@ -47,3 +47,41 @@ var fourSumCount = function (nums1, nums2, nums3, nums4) {
 
   return cnt;
 };
+
+/** 这个题目暴力思路就是4层循环 O(n^4)
+ *  如何用Map 优化
+ *  由于四个数在四个数组中产生 不能用双指针了 考虑用 1 两数之和的标准解法 把O(n^4) => O(n^2)
+ */
+
+/**
+ * @param {number[]} nums1
+ * @param {number[]} nums2
+ * @param {number[]} nums3
+ * @param {number[]} nums4
+ * @return {number}
+ */
+var fourSumCount = function (nums1, nums2, nums3, nums4) {
+  let cnt = 0;
+  const map = new Map();
+  for (let i = 0; i < nums1.length; i++) {
+    for (let j = 0; j < nums2.length; j++) {
+      const sum = nums1[i] + nums2[j];
+      if (map.has(sum)) {
+        map.set(sum, map.get(sum) + 1);
+      } else {
+        map.set(sum, 1);
+      }
+    }
+  }
+
+  for (let i = 0; i < nums3.length; i++) {
+    for (let j = 0; j < nums4.length; j++) {
+      const sum = -(nums3[i] + nums4[j]);
+      if (map.has(sum)) {
+        cnt+=map.get(sum);
+      }
+    }
+  }
+
+  return cnt;
+};

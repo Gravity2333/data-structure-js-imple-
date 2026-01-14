@@ -37,3 +37,37 @@ var threeSum = function (nums) {
 
   return results;
 };
+
+/**
+ * @param {number[]} nums
+ * @return {number[][]}
+ */
+var threeSum = function (nums) {
+  nums = nums.toSorted((a, b) => a - b);
+  const results = [];
+  for (let i = 0; i < nums.length; i++) {
+    if (i >= 1 && nums[i] === nums[i - 1]) {
+      continue;
+    } else {
+      let left = i + 1;
+      let right = nums.length - 1;
+
+      while (left < right) {
+        const sum = nums[left] + nums[right] + nums[i];
+
+        if (sum === 0) {
+          results.push([nums[left], nums[right], nums[i]]);
+          while (left < right && nums[right - 1] === nums[right]) right--;
+          while (left < right && nums[left + 1] === nums[left]) left++;
+          left++;
+          right--;
+        } else if (sum > 0) {
+          right--;
+        } else {
+          left++;
+        }
+      }
+    }
+  }
+  return results;
+};
