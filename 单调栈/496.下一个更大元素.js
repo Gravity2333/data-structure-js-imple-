@@ -43,3 +43,28 @@ var nextGreaterElement = function (nums1, nums2) {
   }
   return results;
 };
+
+/**
+ * @param {number[]} nums1
+ * @param {number[]} nums2
+ * @return {number[]}
+ */
+var nextGreaterElement = function (nums1, nums2) {
+  const map = new Map();
+  nums1.forEach((num, i) => map.set(num, i));
+
+  const stack = [];
+  const results = new Array(nums1.length).fill(-1);
+
+  for (let i = 0; i < nums2.length; i++) {
+    while (stack.length > 0 && stack[stack.length - 1] <= nums2[i]) {
+      const last = stack.pop()
+      if (map.has(last)) {
+        const nums1Index = map.get(last);
+        results[nums1Index] = nums2[i];
+      }
+    }
+    stack.push(nums2[i]);
+  }
+  return results
+};

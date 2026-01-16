@@ -27,9 +27,33 @@ var dailyTemperatures = function (temperatures) {
   for (let i = 0; i < temperatures.length; i++) {
     while (temperatures[stack[stack.length - 1]] < temperatures[i]) {
       const top = stack.pop();
-      results[top] = i-top;
+      results[top] = i - top;
     }
     stack.push(i);
   }
   return results;
+};
+
+// 739.每日温度
+
+/**
+ * @param {number[]} temperatures
+ * @return {number[]}
+ */
+var dailyTemperatures = function (temperatures) {
+  const results = new Array(temperatures.length).fill(0);
+  const stack = [];
+  for (let i = 0; i < temperatures.length; i++) {
+    const temperature = temperatures[i];
+
+    while (
+      stack.length > 0 &&
+      temperatures[stack[stack.length - 1]] < temperature
+    ) {
+      const lastIndex = stack.pop();
+      results[lastIndex] = i - lastIndex;
+    }
+    stack.push(i);
+  }
+  return results
 };

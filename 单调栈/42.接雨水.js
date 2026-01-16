@@ -22,9 +22,9 @@ var trap = function (height) {
       /** 当前bar */
       const currentBarIndex = stack.pop();
       /** ___| 的情况 此时没办法接雨水 */
-      if(stack.length === 0) continue;
+      if (stack.length === 0) continue;
       /** 左侧bar */
-      const leftBarIndex =  stack[stack.length - 1]
+      const leftBarIndex = stack[stack.length - 1];
       /** 右侧bar */
       const rightBarIndex = i;
 
@@ -44,5 +44,30 @@ var trap = function (height) {
     stack.push(i);
   }
 
+  return areas;
+};
+
+/**
+ * @param {number[]} height
+ * @return {number}
+ */
+var trap = function (height) {
+  let areas = 0;
+  const stack = [];
+  for (let i = 0; i < height.length; i++) {
+    while (stack.length > 0 && height[stack[stack.length - 1]] < height[i]) {
+      const bottomIndex = stack.pop();
+      if (stack.length === 0) continue;
+      const bottom = height[bottomIndex];
+      const leftIndex = stack[stack.length - 1];
+      const rightIndex = i;
+      const bottomLen = rightIndex - leftIndex - 1;
+      const areaHeight =
+        Math.min(height[leftIndex], height[rightIndex]) - bottom;
+      const area = areaHeight * bottomLen;
+      areas += area;
+    }
+    stack.push(i);
+  }
   return areas;
 };
